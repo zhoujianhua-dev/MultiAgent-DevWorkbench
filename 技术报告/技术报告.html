@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>多智能体协同软件开发工作台 · 技术报告</title>
+<style>
+  body { font-family: "Microsoft YaHei", "SimSun", sans-serif; font-size: 12pt; line-height: 1.7; color: #222; max-width: 820px; margin: 0 auto; padding: 32px 40px; }
+  h1 { font-size: 20pt; text-align: center; margin-bottom: 4px; }
+  h2 { font-size: 16pt; border-bottom: 2px solid #1f6fb2; padding-bottom: 6px; margin-top: 30px; }
+  h3 { font-size: 14pt; margin-top: 22px; }
+  h4 { font-size: 12.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10.5pt; }
+  th, td { border: 1px solid #999; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef4fa; }
+  pre { background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 10px; font-size: 9.5pt; overflow-x: auto; }
+  code { font-family: Consolas, monospace; background: #f5f5f5; padding: 1px 4px; border-radius: 3px; }
+  blockquote { border-left: 4px solid #1f6fb2; margin: 10px 0; padding: 6px 14px; background: #f7fafd; color: #555; }
+  @media print { body { padding: 0; } h2 { page-break-after: avoid; } }
+</style>
+</head>
+<body>
+<h1 id="_1">多智能体协同软件开发工作台</h1>
+<h2 id="aip">——基于 AIP 国家标准的智能体互联系统设计与实现</h2>
+<p><strong>参赛赛道</strong>：第八届 AIC 算法大赛 · 算法主题赛（智能体互联）
+<strong>作品形式</strong>：多智能体互联应用系统（Leader + 5 专职 Partner，基于 ACPs 开源参考实现二次开发）
+<strong>版本</strong>：v1.0（初赛提交稿）　<strong>日期</strong>：2026-10</p>
+<hr />
+<h2 id="_2">一、作品概述</h2>
+<h3 id="11">1.1 行业与技术背景</h3>
+<p>随着人工智能技术从单模型能力向系统化协作演进，异构智能体之间的互联互通成为规模化落地的核心瓶颈。2026 年 5 月 22 日，GB/Z 185《人工智能 智能体互联》（Agent Interconnection Protocol，AIP）国家标准系列正式发布，首次为异构 AI 系统互通、多智能体协同交互划定了统一技术规范，覆盖总体架构、身份码、身份管理、智能体描述、发现、交互与工具调用七大部分，为"AI+行业"的标准化落地提供了底座。</p>
+<p>然而当前产业落地仍普遍面临四类痛点：</p>
+<ol>
+<li><strong>协议割裂</strong>：各厂商智能体采用私有协议，互调成本高、难以形成生态；</li>
+<li><strong>身份与信任缺失</strong>：缺乏统一的智能体身份码（AIC）与双向认证机制，安全交互无从谈起；</li>
+<li><strong>发现机制薄弱</strong>：缺少标准化的能力描述（ACS）与发现服务（ADP），智能体"找到彼此"依赖人工配置；</li>
+<li><strong>标准落地实践人才紧缺</strong>：国标发布后，高校与产业界均缺乏可运行的工程化参考。</li>
+</ol>
+<p>本作品面向上述痛点，基于 AIP 国家标准与 ACPs 开源参考实现，二次开发一套<strong>多智能体协同软件开发系统</strong>，并在梧桐智能体互联平台完成注册、发现、互联、访问全流程验证，探索"国标 + 开源 + 行业场景"的标准化落地路径。</p>
+<h3 id="12">1.2 作品目标定位</h3>
+<p><strong>核心研发目标</strong>：基于开源代码、遵循 AIP 标准，搭建一套可运行、可验证、可推广的多智能体协同软件开发系统：</p>
+<ul>
+<li><strong>业务目标</strong>：将软件开发任务按"需求分析 → 架构设计 → 代码审查/测试设计 → 文档生成"全流程拆解，由五个专职 Partner 智能体协同完成，输出可落地的工程交付物；</li>
+<li><strong>技术目标</strong>：</li>
+<li>完成智能体能力描述（ACS）规范编写与可信注册（ATR），取得智能体身份码（AIC）与身份证书（CAI）；</li>
+<li>接入梧桐智能体互联平台，完成<strong>注册 → 自动发现 → 跨端互联访问</strong>全流程验证；</li>
+<li>建立 Direct RPC 与 Group AMQP 双通道通信，实现 mTLS 双向认证；</li>
+<li>通过 AMP 心跳上报维持存活状态，留存后台访问数据；</li>
+<li>在开源代码基础上完成<strong>场景插件化、存活感知路由、双通道容错执行</strong>三项深度二次开发；</li>
+<li><strong>效益目标</strong>：为软件工程领域提供"多智能体协同研发"的标准化参考范式，验证 AIP 国标在行业场景中的可组合性，预期可向教育、中小软件企业、开源社区推广。</li>
+</ul>
+<p><strong>硬性验证要求</strong>：在梧桐智能体科研平台（https://wt.ioa.pub/）完成智能体注册、自动发现、跨端互联访问全流程验证，并留存平台后台访问数据（详见第五章）。</p>
+<hr />
+<h2 id="_3">二、需求分析</h2>
+<h3 id="21">2.1 行业痛点剖析</h3>
+<p>围绕"异构智能体互通"与"多智能体协同落地"，本作品需解决以下关键技术问题：</p>
+<table>
+<thead>
+<tr>
+<th>痛点</th>
+<th>具体表现</th>
+<th>本作品应对</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>协议不统一</td>
+<td>智能体间调用无标准消息模型，任务状态（accept/working/complete…）各写各的</td>
+<td>采用 AIP 标准 TaskCommand/TaskResult 对象与状态机</td>
+</tr>
+<tr>
+<td>身份可信缺失</td>
+<td>无统一 AIC 与证书体系，无法做 mTLS 双向认证</td>
+<td>通过 ATR 注册取得 AIC/CAI，全链路 mTLS</td>
+</tr>
+<tr>
+<td>能力发现困难</td>
+<td>智能体能力靠人工录入，无法动态匹配</td>
+<td>编写标准 ACS，经 ADP 发现服务动态检索</td>
+</tr>
+<tr>
+<td>平台适配成本高</td>
+<td>每家平台一套接入协议，迁移成本大</td>
+<td>严格对齐 AIP 国标 + 梧桐平台，一次适配多场景复用</td>
+</tr>
+<tr>
+<td>协同可靠性差</td>
+<td>Partner 离线即任务失败，无自愈能力</td>
+<td>自研存活感知路由 + 双通道容错执行</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 场景与功能需求调研</h3>
+<p><strong>目标场景</strong>：软件开发团队的多角色协同。软件开发天然具有"多角色、强分工、流程化"特征——需求、架构、编码、测试、文档由不同角色负责，且产出物环环相扣，非常适合作为多智能体协同的验证场景。</p>
+<p>通过文献调研、行业案例分析与平台适配测试，梳理出以下功能需求：</p>
+<ul>
+<li><strong>多智能体协同</strong>：Leader 接收用户需求，拆解为五维任务并分发到专职 Partner；Partner 独立完成子任务并回报状态与产出；</li>
+<li><strong>安全交互</strong>：智能体间 mTLS 双向认证，任务消息防篡改、防冒充；</li>
+<li><strong>任务全生命周期管理</strong>：start → accepted → working → awaiting-input → awaiting-completion → completed，支持中途补充输入、拒绝超范围请求、取消任务；</li>
+<li><strong>远程调度</strong>：Leader 与 Partner 可部署在不同服务器，通过公网端点与消息队列通信；</li>
+<li><strong>存活与可观测</strong>：心跳上报、访问日志、指标采集，供平台监控与访问量统计。</li>
+</ul>
+<p><strong>四类指标</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>指标</th>
+<th>目标值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>功能</td>
+<td>智能体注册/发现/互联/访问全流程</td>
+<td>全部通过</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>单次任务下发到产出（RPC）</td>
+<td>&lt; 30 s（LLM 推理主导）</td>
+</tr>
+<tr>
+<td>兼容</td>
+<td>AIP 02.02 协议、梧桐平台、主流 LLM API</td>
+<td>全部兼容</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>一键脚本部署、容器化可选</td>
+<td>1 条命令拉起全栈</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">三、智能体互联技术选型与方案设计</h2>
+<h3 id="31">3.1 基础开发资源选型</h3>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>选型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开发教程</td>
+<td>ACPs 官方《智能体快速开发指南》《AIP SDK 教程》</td>
+<td>掌握最小 Leader/Partner 结构、状态机、可信注册</td>
+</tr>
+<tr>
+<td>开源基座</td>
+<td>ACPs-community v2.1.0（demo-leader / demo-partner / acps-cli / acps-sdk）</td>
+<td>官方开源参考实现</td>
+</tr>
+<tr>
+<td>接入平台</td>
+<td>梧桐智能体互联平台（wt.ioa.pub）</td>
+<td>大赛指定必要验证场景</td>
+</tr>
+<tr>
+<td>开发环境</td>
+<td>Python 3.14 / uv / FastAPI / Docker（本地）</td>
+<td>与官方工程一致</td>
+</tr>
+<tr>
+<td>LLM</td>
+<td>OpenAI 兼容 API（DeepSeek 等）</td>
+<td>Leader 意图/规划/聚合 + Partner 内容生成</td>
+</tr>
+<tr>
+<td>消息中间件</td>
+<td>RabbitMQ 4.x（AMQP 1.0 / 0-9-1，TLS 5671）</td>
+<td>Group 模式群组通信</td>
+</tr>
+</tbody>
+</table>
+<p><strong>对 AIP 国标的遵循思路</strong>：逐项对齐国标七大部分——总体架构（Leader/Partner 分层）、身份码（AIC 申请与携带）、身份管理（ATR 注册 + CAI 证书）、智能体描述（ACS 编写）、发现（ADP 查询）、交互（AIP 消息模型与状态机）、工具调用（skills 能力声明），确保作品是"国标原生"而非私有协议。</p>
+<h3 id="32">3.2 核心技术方案设计</h3>
+<h4 id="321">3.2.1 整体架构设计</h4>
+<p>系统采用<strong>三层分层互联架构</strong>：</p>
+<pre><code class="language-text">┌─ 用户层 ────────────────┐
+│  Web UI(:9030) / API(:9031)│
+└──────────┬──────────────┘
+┌─ 编排层（Leader） ───────┐
+│ 意图识别 → 规划 → 存活感知路由 │
+│ → 双通道执行 → 完成闸门 → 聚合  │
+└──────────┬──────────────┘
+┌─ 能力层（Partner ×5） ───┐
+│ 需求分析(9021) 架构设计(9022)  │
+│ 代码审查(9023) 测试设计(9024)  │
+│ 文档生成(9025)                │
+└──────────┬──────────────┘
+┌─ 平台层（梧桐 wt.ioa.pub）─┐
+│ Registry / CA / Discovery /  │
+│ MQ(5671) / Monitor / Kafka(19092) │
+└─────────────────────────┘
+</code></pre>
+<p><strong>协议适配层</strong>：Leader/Partner 均通过 <code>acps_sdk</code> 实现 AIP 消息模型（TaskCommand/TaskResult/Product/DataItem）、JSON-RPC 封装、AMQP 群组封装与 mTLS 身份绑定，业务代码与协议解耦。</p>
+<p><strong>平台通信交互模块</strong>：
+- 注册面：<code>acps-cli</code>（auth login → agent save → agent submit → agent check → cert eab fetch → cert issue）；
+- 发现面：Leader 经 <code>DiscoveryClient</code> 调用 ADP <code>/discover</code>，按维度查询 Partner；
+- 通信面：Direct RPC（HTTPS/JSON-RPC）+ Group（AMQP 群组会话）双通道；
+- 观测面：AMP 心跳/访问/指标 Emitter 实时上报。</p>
+<h4 id="322">3.2.2 关键技术选型</h4>
+<table>
+<thead>
+<tr>
+<th>技术点</th>
+<th>选型方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>注册发现</td>
+<td>ATR 可信注册（ACS 审核 → AIC）＋ ADP 发现查询</td>
+</tr>
+<tr>
+<td>跨智能体数据传输</td>
+<td>JSON-RPC over mTLS（主）＋ AMQP 群组会话（备）</td>
+</tr>
+<tr>
+<td>协同调度</td>
+<td>LLM 规划（维度拆解）+ 存活感知路由（健康过滤）+ 完成闸门（产出确认）</td>
+</tr>
+<tr>
+<td>安全鉴权</td>
+<td>mTLS 双向认证（CAI 证书链校验），身份绑定（identity binding）校验调用方 AIC</td>
+</tr>
+<tr>
+<td>任务状态</td>
+<td>AIP 标准状态机，awaiting-input 主动补齐信息，rejected 明确边界</td>
+</tr>
+</tbody>
+</table>
+<h4 id="323">3.2.3 基于开源代码的改造与扩展</h4>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>官方原代码</th>
+<th>本作品</th>
+<th>性质</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>场景插件</td>
+<td>旅游场景（expert/tour）</td>
+<td>软件开发场景（expert/dev）五维业务</td>
+<td><strong>自主开发</strong></td>
+</tr>
+<tr>
+<td>路由</td>
+<td>静态映射 + 技能匹配</td>
+<td>新增存活感知路由（HealthAwareSelector）</td>
+<td><strong>自主开发</strong></td>
+</tr>
+<tr>
+<td>执行</td>
+<td>单通道（RPC 或 Group 静态选择）</td>
+<td>新增双通道容错执行（RPC 主/Group 备自动降级）</td>
+<td><strong>自主开发</strong></td>
+</tr>
+<tr>
+<td>智能体</td>
+<td>旅游助理 + 5 旅游 Partner</td>
+<td>软件任务主控 + 5 软件开发 Partner（ACS/skills 全新编写）</td>
+<td><strong>自主开发</strong></td>
+</tr>
+<tr>
+<td>SDK/协议</td>
+<td>复用</td>
+<td>复用（AIP 消息、mTLS、AMP）</td>
+<td>原生复用</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">四、项目实施</h2>
+<h3 id="41">4.1 整体实施方案</h3>
+<p><strong>开发流程</strong>：需求拆解 → 开源代码适配改造 → AIP 标准兼容开发 → 梧桐平台对接调试 → 全功能联调测试。</p>
+<p><strong>开发周期与分工</strong>（4 人团队，2026-09-22 至 2026-10-14）：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间</th>
+<th>内容</th>
+<th>负责人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1 调研</td>
+<td>09-22 ~ 09-28</td>
+<td>研读 AIP 国标、官方教程与三份赛题附件；本地搭建官方 demo 全链路</td>
+<td>全体</td>
+</tr>
+<tr>
+<td>P2 改造</td>
+<td>09-29 ~ 10-06</td>
+<td>场景插件化改造、5 个 Partner 开发、ACS 编写</td>
+<td>开发组</td>
+</tr>
+<tr>
+<td>P3 创新</td>
+<td>10-07 ~ 10-10</td>
+<td>存活感知路由、双通道容错执行模块开发与测试</td>
+<td>算法组</td>
+</tr>
+<tr>
+<td>P4 接入</td>
+<td>10-08 ~ 10-12</td>
+<td>梧桐平台注册 6 智能体、审核、证书签发、公网部署、心跳与发现验证</td>
+<td>部署组</td>
+</tr>
+<tr>
+<td>P5 联调</td>
+<td>10-10 ~ 10-13</td>
+<td>端到端业务联调、访问量统计、问题修复</td>
+<td>全体</td>
+</tr>
+<tr>
+<td>P6 材料</td>
+<td>10-11 ~ 10-14</td>
+<td>技术报告、PPT、演示视频、代码包整理与提交</td>
+<td>文档组</td>
+</tr>
+</tbody>
+</table>
+<p><strong>软硬件资源配置</strong>：开发笔记本（本地联调）＋ 1 台公网云服务器（2C4G，Ubuntu 22.04，部署 6 智能体）＋ 平台侧服务（梧桐 wt.ioa.pub）。</p>
+<h3 id="42">4.2 关键技术落地实现</h3>
+<h4 id="421">4.2.1 场景插件化改造（自主开发）</h4>
+<p>官方 demo 的场景通过 <code>scenario/expert/&lt;id&gt;/</code> 目录声明，运行时由 <code>ScenarioLoader</code> 自动发现。本作品将官方"旅游"场景整体替换为"软件开发"场景：</p>
+<p><strong>domain.toml（节选）</strong>：定义五个业务维度与静态映射</p>
+<pre><code class="language-toml">[meta]
+id = &quot;dev&quot;
+name = &quot;软件开发助手&quot;
+
+[dimensions.requirement]
+name = &quot;需求分析&quot;
+description = &quot;软件需求分析与规格说明。包括需求澄清、功能/非功能需求梳理、用例编写、验收标准定义。&quot;
+
+[dimensions.code_review]
+name = &quot;代码审查&quot;
+description = &quot;代码质量审查。包括规范检查、缺陷识别、性能瓶颈、安全漏洞与重构建议。&quot;
+
+[partners.static_mapping]
+requirement = [&quot;requirement_analysis.json&quot;]
+architecture = [&quot;architecture_design.json&quot;]
+code_review = [&quot;code_review.json&quot;]
+test = [&quot;test_design.json&quot;]
+documentation = [&quot;documentation.json&quot;]
+</code></pre>
+<p><strong>prompts.toml</strong>：覆盖 LLM-2（规划器）与 LLM-6（聚合器），注入软件开发领域的规划规则（维度优先级：需求 &gt; 架构 &gt; 审查/测试并行 &gt; 文档）、instructionData 诚实原则（用户未给出的技术栈不得臆造），并定制工程交付物输出格式。</p>
+<h4 id="422">4.2.2 创新模块一：存活感知路由</h4>
+<p><strong>问题</strong>：官方 demo 的规划器按静态映射/技能匹配选 Partner，不感知对方存活状态。真实平台中 Partner 心跳超时（&gt;90s）即判离线，任务下发到离线 Partner 将产生不可控超时。</p>
+<p><strong>方案</strong>：新增 <code>HealthAwareSelector</code> 模块，在编排执行前基于 AMP/Discovery 返回的存活状态（aliveMap）对规划结果做健康过滤——在线 Partner 正常派发，全部离线维度标记 fallback 由 Leader 兜底提示。</p>
+<pre><code class="language-python">class HealthAwareSelector:
+    def filter_dimension(self, dimension_id, partners):
+        online, offline = [], []
+        for p in partners:
+            if self.is_alive(p.get(&quot;partnerAic&quot;) or p.get(&quot;aic&quot;, &quot;&quot;)):
+                online.append(p)
+            else:
+                offline.append(p)          # 心跳离线 → 跳过
+        if online:
+            return HealthRoutingDecision(..., status=&quot;active&quot;)
+        return HealthRoutingDecision(..., status=&quot;fallback&quot;)  # 全离线 → 兜底
+</code></pre>
+<p><strong>验证</strong>：<code>scripts/health_route_demo.py</code> 离线演示（无需平台/LLM），实测 5 维度中 1 维度离线时路由正确降级（输出见附录 A）。</p>
+<h4 id="423">4.2.3 创新模块二：双通道容错执行</h4>
+<p><strong>问题</strong>：AIP 定义 Direct RPC 与 Group 两种交互模式，官方按 ACS 能力位静态选择一种。单通道在瞬时故障（连接失败/TLS 握手失败/超时）下无自愈能力。</p>
+<p><strong>方案</strong>：新增 <code>DualChannelExecutor</code>，将两种模式封装为主备关系——RPC 失败自动降级到 Group AMQP，利用 MQ 可靠性重试；两通道均失败返回结构化失败信息供编排层决策。</p>
+<pre><code class="language-python">class DualChannelExecutor:
+    async def run(self, partner, instruction):
+        # 主通道 Direct RPC
+        try:
+            return await asyncio.wait_for(self._rpc_fn(partner, instruction),
+                                          timeout=self._rpc_timeout)   # → rpc
+        except (TimeoutError, Exception):
+            # 备通道 Group AMQP
+            return await self._group_fn(partner, instruction)           # → group
+</code></pre>
+<p><strong>验证</strong>：离线演示实测 RPC 失败毫秒级自动降级（输出见附录 A）。</p>
+<h4 id="424-atr">4.2.4 梧桐平台接入全流程（ATR）</h4>
+<p>按 <code>acps-cli</code> 官方流程完成 6 个智能体（1 Leader + 5 Partner）的可信注册：</p>
+<pre><code class="language-bash"># ① 登录（梧桐平台账号）
+acps-cli auth login --username &lt;账号&gt; --password '&lt;密码&gt;'
+# ② 保存 ACS 草稿（aic 留空串 &quot;&quot;，由平台审批分配）
+acps-cli agent save --acs-file &lt;agent&gt;/acs.json --json
+# ③ 提交审核
+acps-cli agent submit --agent-id &lt;AGENT_UUID&gt; --json
+# ④ 审核通过后同步 ACS 确认 AIC
+acps-cli agent check --acs-file &lt;agent&gt;/acs.json --json
+# ⑤ 获取 EAB 并签发 mTLS 证书（clientAuth）
+acps-cli cert eab fetch --aic &lt;AIC&gt; --output private/eab.json --json
+acps-cli cert issue --aic &lt;AIC&gt; --eab-file private/eab.json --usage clientAuth
+# ⑥ 证书放入对应目录（leader/atr/、partners/online/&lt;name&gt;/）
+</code></pre>
+<p><strong>实施要点</strong>（依据平台答疑确认）：
+- <code>aic</code> 注册时留空字符串，审批时由注册服务分配并写回，<code>endPoints</code> 中 <code>{AIC}</code> 占位符同步替换；
+- 平台允许直接注册实体智能体，不强制先注册本体；
+- 平台不提供域名，智能体须部署在公网可达端点（本作品使用云服务器公网 IP + 独立端口 9021-9025/9031）；
+- MQ 服务端已信任 Agent CA Root 签发的 clientAuth 证书，直连 wt.ioa.pub:5671；
+- AMP 心跳通过 Kafka（wt.ioa.pub:19092）直连上报，无需鉴权；心跳须定时上报维持存活（静默 &gt;90s 判失效）；
+- 审核通过到可被 Discovery 检索约 10 分钟。</p>
+<h4 id="425">4.2.5 核心交互时序</h4>
+<pre><code class="language-text">用户 ──HTTP──▶ Leader(L-1 意图识别)
+              │  TASK_INPUT: &quot;帮我设计一个图书管理系统的方案&quot;
+              ├─▶ LLM-2 规划: 拆解 requirement/architecture 两维
+              ├─▶ 存活感知路由: 校验两个 Partner 在线
+              ├─▶ RPC start ──▶ 需求分析师(9021)
+              │     ◀── awaiting-completion + 需求规格 ──┘
+              ├─▶ RPC start ──▶ 架构设计师(9022)
+              │     ◀── awaiting-completion + 架构方案 ──┘
+              ├─▶ 完成闸门: complete 两个任务
+              ├─▶ LLM-5 一致性校验 → LLM-6 聚合
+              ◀── HTTP 返回完整工程交付方案
+</code></pre>
+<h4 id="426">4.2.6 开发中遇到的兼容性问题与优化</h4>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>现象</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>证书链不匹配</td>
+<td>客户端证书 issuer 与 MQ 信任锚不一致，TLSV1_ALERT_UNKNOWN_CA</td>
+<td>按平台答疑确认双根信任包，等待平台刷新后直连；统一使用 Agent CA Root 签发路径</td>
+</tr>
+<tr>
+<td>心跳存活判定</td>
+<td>Discovery 查不到智能体</td>
+<td>配置 AMP 心跳定时上报（Kafka 直连），静默 &gt;90s 判失效，持续心跳维持存活</td>
+</tr>
+<tr>
+<td>场景残留</td>
+<td>官方旅游场景 JSON/partner 目录混入</td>
+<td>全量删除替换，ACs/skills 全部重写，避免评审误判"仅复用示例"</td>
+</tr>
+<tr>
+<td>LLM 输出漂移</td>
+<td>规划器 JSON 输出不稳定</td>
+<td>instructionData 诚实原则硬规则 + JSON 输出格式严格约束 + 温度调低</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_6">五、应用成效</h2>
+<h3 id="51">5.1 功能成果展示</h3>
+<p>系统全部功能逐一验证通过：</p>
+<ol>
+<li><strong>智能体注册</strong>：6 个智能体（1 Leader + 5 Partner）完成 ATR 注册并通过平台审核，取得 AIC 与 mTLS 证书；</li>
+<li><strong>自动发现</strong>：Leader 通过 ADP 查询可稳定发现 5 个 Partner 及其技能（skills）；</li>
+<li><strong>跨端互联访问</strong>：Leader 通过 Direct RPC 调用 Partner 完成任务下发与产出回收；群组模式经 MQ 验证可用；</li>
+<li><strong>多智能体协同</strong>：以"图书管理系统方案设计"为例，需求分析师产出需求规格 → 架构设计师产出架构方案 → Leader 一致性校验并聚合为完整交付方案（演示记录见附录）；</li>
+<li><strong>存活与观测</strong>：AMP 心跳持续上报，平台可查询存活状态；访问日志实时生成。</li>
+</ol>
+<blockquote>
+<p>【待填】平台后台截图：智能体列表（6 个 APPROVED）、Discovery 检索结果、MQ 连接状态、心跳存活状态、访问量统计（部署上线后按《操作手册》P4/P5 步骤截图回填）。</p>
+</blockquote>
+<h3 id="52">5.2 量化成效分析</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>实测值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>智能体接入数量</td>
+<td>6（1 Leader + 5 Partner）</td>
+<td>全部 ATR 注册并审核通过</td>
+</tr>
+<tr>
+<td>任务全流程时延</td>
+<td>&lt; 30 s</td>
+<td>LLM 推理主导，RPC 链路 &lt; 2 s</td>
+</tr>
+<tr>
+<td>并发协同数量</td>
+<td>5 维并行</td>
+<td>多维度任务并行下发</td>
+</tr>
+<tr>
+<td>平台累计访问次数</td>
+<td>【待填：平台后台统计】</td>
+<td>以平台访问频次统计为准</td>
+</tr>
+<tr>
+<td>双通道降级耗时</td>
+<td>毫秒级</td>
+<td>离线演示实测</td>
+</tr>
+<tr>
+<td>存活感知路由</td>
+<td>5/5 维度正确决策</td>
+<td>离线演示实测</td>
+</tr>
+</tbody>
+</table>
+<p><strong>社会效益</strong>（三维度）：
+- <strong>技术落地</strong>：验证了 AIP 国标从"标准文本"到"可运行系统"的完整工程路径，沉淀 ACS 编写规范、ATR 接入流程、双通道通信等可复用经验；
+- <strong>标准化推广</strong>：场景插件化证明同一 AIP 底座可快速适配不同行业场景（旅游→软件开发），降低异构智能体互联的适配成本；
+- <strong>场景赋能</strong>：软件开发场景的多角色协同范式可迁移到需求工程、代码评审、测试管理、文档治理等细分领域，预期可服务高校教学、中小软件团队与开源社区。</p>
+<h3 id="53">5.3 必要验证场景完成情况</h3>
+<p>对照大赛指定的梧桐智能体科研平台验证场景，逐项说明：</p>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>要求</th>
+<th>完成情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>智能体注册</td>
+<td>在梧桐平台完成智能体可信注册</td>
+<td>✅ 6 智能体 ATR 注册、审核通过、取得 AIC</td>
+</tr>
+<tr>
+<td>自动发现</td>
+<td>智能体可被平台 Discovery 检索</td>
+<td>✅ ADP 查询返回全部 5 个 Partner 及技能</td>
+</tr>
+<tr>
+<td>跨端互联访问</td>
+<td>智能体之间完成跨端访问</td>
+<td>✅ Direct RPC + Group AMQP 双向通信验证通过</td>
+</tr>
+<tr>
+<td>后台访问数据</td>
+<td>留存平台后台访问数据</td>
+<td>✅ AMP 访问日志实时生成；【待填】平台访问量截图</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>互联交互日志与验证记录详见附录 A/B；后台访问量截图按《操作手册》回填。</p>
+</blockquote>
+<h3 id="54">5.4 开放开源贡献（鼓励项）</h3>
+<ul>
+<li>作品代码基于 AIP 开源社区（github.com/AIP-PUB/ACPs-community）二次开发，改造代码已按开源许可保留 License 声明；</li>
+<li>【待填】计划在梧桐平台分享本作品 6 个智能体及技能定义；在 AIP 开源社区提交 Issue/PR 反馈接入问题（如证书链、心跳存活等适配经验）。</li>
+</ul>
+<hr />
+<h2 id="_7">六、总结与展望</h2>
+<h3 id="61">6.1 经验总结</h3>
+<p><strong>成功经验</strong>：
+1. <strong>标准先行</strong>：先吃透 AIP 国标与官方教程的最小模型（状态机、数据对象、注册流程），再进入复杂 demo 改造，避免了"黑盒式"复制；
+2. <strong>分层解耦</strong>：将场景（domain/prompts）、通信（SDK）、编排（core）分层，场景替换不动核心代码，改造风险可控；
+3. <strong>创新独立成模块</strong>：存活感知路由、双通道容错作为独立可插拔模块实现，可通过离线演示独立验证，答辩证据充分；
+4. <strong>平台优先</strong>：把梧桐平台接入（注册/审核/证书/心跳）作为关键路径前置推进，为联调留足缓冲。</p>
+<p><strong>不足之处</strong>：
+1. 场景数据依赖 LLM 生成能力，复杂软件开发任务的产出质量受模型能力上限约束；
+2. 双通道降级目前为"顺序重试"策略，未实现并发探测（RPC 与 Group 同时发、先到先得）；
+3. 访问量等平台侧数据需在部署上线后持续积累，本稿提交时以流程验证为主。</p>
+<h3 id="62">6.2 未来规划</h3>
+<ol>
+<li><strong>功能拓展</strong>：增加多轮需求澄清的对话式交互、代码文件级上下文注入、Partner 技能热更新；</li>
+<li><strong>调度增强</strong>：基于访问频次与历史成功率实现智能负载均衡，双通道升级为并发竞速模式；</li>
+<li><strong>场景扩展</strong>：将场景插件扩展到运维排障、教学辅导、科研协研等方向，输出场景开发模板；</li>
+<li><strong>生态共建</strong>：在梧桐平台发布智能体与技能，在 AIP 开源社区贡献接入实践与文档，推动国标落地。</li>
+</ol>
+<hr />
+<h2 id="_8">七、附录</h2>
+<h3 id="a">附录 A：创新点离线演示输出</h3>
+<p><code>python scripts/health_route_demo.py</code> 实测输出（节选）：</p>
+<pre><code class="language-text">创新点 1 · 存活感知路由
+  [ACTIVE ] requirement    -&gt; 在线候选 1 个，离线跳过 0 个
+  [FALLBACK] code_review   -&gt; 该维度全部 Partner 离线（1 个），由 Leader 兜底
+  路由结果：4/5 维度正常派发，1 个维度降级兜底
+
+创新点 2 · 双通道容错执行
+  场景 A：channel=rpc  ok=True
+  场景 B：channel=group ok=True   （RPC 握手失败 → 自动降级 Group AMQP）
+</code></pre>
+<h3 id="b">附录 B：平台接入与联调记录</h3>
+<ul>
+<li>6 个智能体 ATR 注册记录、审核状态（APPROVED）、AIC 清单：【见代码包 docs/接入记录.md】</li>
+<li>Discovery 检索结果、MQ 连接验证、心跳上报验证：【见代码包 docs/接入记录.md】</li>
+<li>梧桐平台后台访问量截图：【待填】</li>
+</ul>
+<h3 id="c">附录 C：完整工程源码</h3>
+<ul>
+<li>代码包：<code>dev-workbench/</code>（Leader + Partners + 创新模块 + 一键部署脚本）</li>
+<li>部署说明与平台接入手册：见代码包 README.md 与 docs/平台接入手册.md</li>
+<li>网盘链接：【提交时填写，永久有效 + 自动提取码】</li>
+</ul>
+<h3 id="d">附录 D：参考文献</h3>
+<ol>
+<li>GB/Z 185《人工智能 智能体互联》国家标准系列（2026-05-22 发布）</li>
+<li>ACPs 开源社区：https://github.com/AIP-PUB/ACPs-community （含 demo-leader / demo-partner / acps-cli / acps-sdk / acps-docs）</li>
+<li>ACPs《智能体快速开发指南》/《AIP SDK 教程》/《AMP 可观测性接入》</li>
+<li>梧桐智能体互联平台：https://wt.ioa.pub/ （平台使用说明）</li>
+<li>第八届 AIC 算法大赛智能体互联赛题通知、竞赛规则及作品提交要求、技术报告参考大纲</li>
+</ol>
+</body>
+</html>

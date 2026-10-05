@@ -1,0 +1,75 @@
+{
+  "aic": "1.2.156.3088.1.BUPT.NMLQ3K.2EJ55A.EGP7TY.035Y",
+  "name": "代码审查师智能体",
+  "active": true,
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "review.defect-detection",
+      "name": "缺陷识别",
+      "tags": [
+        "缺陷",
+        "Bug",
+        "逻辑错误"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "审查这段 Python 代码，找出潜在缺陷"
+      ],
+      "description": "检查代码逻辑错误、空指针、资源泄漏等潜在缺陷。"
+    },
+    {
+      "id": "review.security-scan",
+      "name": "安全漏洞审查",
+      "tags": [
+        "安全漏洞",
+        "注入",
+        "越权"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "审查这段代码是否存在 SQL 注入风险"
+      ],
+      "description": "识别注入、越权等安全风险。"
+    }
+  ],
+  "provider": {
+    "url": "https://ioa.pub",
+    "license": "开源参考实现",
+    "department": "",
+    "organization": "多智能体协同软件开发工作台"
+  },
+  "endPoints": [
+    {
+      "url": "amqps://wt.ioa.pub:5671/acps?inbox=inbox_1.2.156.3088.1.BUPT.NMLQ3K.2EJ55A.EGP7TY.035Y",
+      "security": [
+        {
+          "mtls": []
+        }
+      ],
+      "transport": "AMQP"
+    }
+  ],
+  "description": "代码审查师智能体。多智能体协同软件开发工作台成员。",
+  "capabilities": {
+    "streaming": false,
+    "messageQueue": [
+      "rabbitmq:>=4.2"
+    ],
+    "notification": false
+  },
+  "protocolVersion": "02.02",
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS"
+    }
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "lastModifiedTime": "2026-09-29T17:00:46.683942+08:00"
+}

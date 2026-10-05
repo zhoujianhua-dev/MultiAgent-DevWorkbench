@@ -1,0 +1,61 @@
+{
+  "aic": "1.2.156.3088.1.BUPT.NMLQ3K.W7WY1V.2BRQ1W.0SV7",
+  "name": "测试设计师智能体",
+  "active": true,
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "test.unit-design",
+      "name": "单元测试用例设计",
+      "tags": [
+        "单元测试",
+        "用例设计",
+        "边界"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "为这个函数设计单元测试用例"
+      ],
+      "description": "为函数/模块设计单元测试用例。"
+    }
+  ],
+  "provider": {
+    "url": "https://ioa.pub",
+    "license": "开源参考实现",
+    "department": "",
+    "organization": "多智能体协同软件开发工作台"
+  },
+  "endPoints": [
+    {
+      "url": "amqps://wt.ioa.pub:5671/acps?inbox=inbox_1.2.156.3088.1.BUPT.NMLQ3K.W7WY1V.2BRQ1W.0SV7",
+      "security": [
+        {
+          "mtls": []
+        }
+      ],
+      "transport": "AMQP"
+    }
+  ],
+  "description": "测试设计师智能体。多智能体协同软件开发工作台成员。",
+  "capabilities": {
+    "streaming": false,
+    "messageQueue": [
+      "rabbitmq:>=4.2"
+    ],
+    "notification": false
+  },
+  "protocolVersion": "02.02",
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS"
+    }
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "lastModifiedTime": "2026-09-29T17:00:39.299686+08:00"
+}

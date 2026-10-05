@@ -1,0 +1,77 @@
+{
+  "aic": "1.2.156.3088.1.BUPT.NMLQ3K.C9Z1N0.51CG1S.100U",
+  "name": "架构设计师智能体",
+  "active": true,
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "arch.tech-selection",
+      "name": "技术选型与架构设计",
+      "tags": [
+        "技术选型",
+        "架构设计",
+        "模块划分",
+        "方案"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "基于这个需求，给出技术选型建议和整体架构方案"
+      ],
+      "description": "根据需求与约束给出技术选型建议、模块划分和整体架构方案。"
+    },
+    {
+      "id": "arch.api-datamodel",
+      "name": "接口与数据模型设计",
+      "tags": [
+        "接口设计",
+        "API",
+        "数据模型",
+        "数据库"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "为这个系统设计 REST API 接口规范和数据库表结构"
+      ],
+      "description": "设计接口规范与数据库表结构。"
+    }
+  ],
+  "provider": {
+    "url": "https://ioa.pub",
+    "license": "开源参考实现",
+    "department": "",
+    "organization": "多智能体协同软件开发工作台"
+  },
+  "endPoints": [
+    {
+      "url": "amqps://wt.ioa.pub:5671/acps?inbox=inbox_1.2.156.3088.1.BUPT.NMLQ3K.C9Z1N0.51CG1S.100U",
+      "security": [
+        {
+          "mtls": []
+        }
+      ],
+      "transport": "AMQP"
+    }
+  ],
+  "description": "架构设计师智能体。多智能体协同软件开发工作台成员。",
+  "capabilities": {
+    "streaming": false,
+    "messageQueue": [
+      "rabbitmq:>=4.2"
+    ],
+    "notification": false
+  },
+  "protocolVersion": "02.02",
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS"
+    }
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "lastModifiedTime": "2026-09-29T17:00:49.449164+08:00"
+}

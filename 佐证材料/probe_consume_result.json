@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-10-05T02:19:34.877774+00:00",
+  "onlineCount": 6,
+  "total": 6,
+  "detail": {
+    "requirement": {
+      "before": 0,
+      "after": 0,
+      "online": true
+    },
+    "architecture": {
+      "before": 0,
+      "after": 0,
+      "online": true
+    },
+    "code_review": {
+      "before": 0,
+      "after": 0,
+      "online": true
+    },
+    "test_design": {
+      "before": 0,
+      "after": 0,
+      "online": true
+    },
+    "documentation": {
+      "before": 0,
+      "after": 0,
+      "online": true
+    },
+    "leader": {
+      "before": 0,
+      "after": 0,
+      "online": true
+    }
+  }
+}

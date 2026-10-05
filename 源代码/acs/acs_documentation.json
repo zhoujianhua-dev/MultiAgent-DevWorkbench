@@ -1,0 +1,60 @@
+{
+  "aic": "1.2.156.3088.1.BUPT.NMLQ3K.WHVAY8.F1OM44.036N",
+  "name": "文档工程师智能体",
+  "active": true,
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "doc.technical-design",
+      "name": "技术方案文档",
+      "tags": [
+        "技术方案",
+        "设计文档"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "把架构设计整理成技术方案文档"
+      ],
+      "description": "将架构与设计方案整理为规范文档。"
+    }
+  ],
+  "provider": {
+    "url": "https://ioa.pub",
+    "license": "开源参考实现",
+    "department": "",
+    "organization": "多智能体协同软件开发工作台"
+  },
+  "endPoints": [
+    {
+      "url": "amqps://wt.ioa.pub:5671/acps?inbox=inbox_1.2.156.3088.1.BUPT.NMLQ3K.WHVAY8.F1OM44.036N",
+      "security": [
+        {
+          "mtls": []
+        }
+      ],
+      "transport": "AMQP"
+    }
+  ],
+  "description": "文档工程师智能体。多智能体协同软件开发工作台成员。",
+  "capabilities": {
+    "streaming": false,
+    "messageQueue": [
+      "rabbitmq:>=4.2"
+    ],
+    "notification": false
+  },
+  "protocolVersion": "02.02",
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS"
+    }
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "lastModifiedTime": "2026-09-29T17:00:43.909941+08:00"
+}

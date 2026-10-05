@@ -1,0 +1,96 @@
+{
+  "aic": "1.2.156.3088.1.BUPT.NMLQ3K.HH1098.OJ1Q6D.06A9",
+  "name": "需求分析师智能体",
+  "active": true,
+  "version": "1.0.1",
+  "skills": [
+    {
+      "id": "req.functional-analysis",
+      "name": "功能需求梳理",
+      "tags": [
+        "功能需求",
+        "用户故事",
+        "用例",
+        "验收标准"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "为一个图书管理系统梳理核心功能需求，输出功能清单和用户故事",
+        "帮我分析这个电商系统的用户故事，并给出验收标准"
+      ],
+      "description": "梳理软件功能需求，输出功能清单、用户故事与验收标准。"
+    },
+    {
+      "id": "req.nfr-constraints",
+      "name": "非功能需求分析",
+      "tags": [
+        "非功能需求",
+        "性能",
+        "安全",
+        "约束"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "为这个系统定义非功能需求，重点关注性能和安全约束",
+        "分析这个项目对可用性和可扩展性的要求"
+      ],
+      "description": "识别性能、安全、可用性、可扩展性等非功能约束，输出约束清单。"
+    },
+    {
+      "id": "req.scope-prioritization",
+      "name": "需求优先级与范围建议",
+      "tags": [
+        "优先级",
+        "MVP",
+        "范围",
+        "迭代规划"
+      ],
+      "version": "1.0.0",
+      "examples": [
+        "帮我给这些需求排优先级，确定第一版 MVP 的范围",
+        "需求太多做不完，请帮我规划迭代顺序"
+      ],
+      "description": "基于价值与成本对需求排序，输出 MVP 范围建议与迭代规划。"
+    }
+  ],
+  "provider": {
+    "url": "https://ioa.pub",
+    "license": "开源参考实现",
+    "department": "",
+    "organization": "多智能体协同软件开发工作台"
+  },
+  "endPoints": [
+    {
+      "url": "amqps://wt.ioa.pub:5671/acps?inbox=inbox_1.2.156.3088.1.BUPT.NMLQ3K.HH1098.OJ1Q6D.06A9",
+      "security": [
+        {
+          "mtls": []
+        }
+      ],
+      "transport": "AMQP"
+    }
+  ],
+  "description": "需求分析师智能体（Partner）。职责：基于用户输入完成软件需求澄清与规格说明，梳理功能/非功能需求，编写用户故事、用例与验收标准，给出需求优先级与范围建议。支持电商、Web系统、企业应用等场景的需求分析。",
+  "capabilities": {
+    "streaming": false,
+    "messageQueue": [
+      "rabbitmq:>=4.2"
+    ],
+    "notification": false
+  },
+  "protocolVersion": "02.02",
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS",
+      "description": "智能体间mTLS双向认证"
+    }
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "lastModifiedTime": "2026-09-29T17:00:41.508487+08:00"
+}
